@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# Env
+.env
+
+# Node
+node_modules/
+dist/
+
+# Docker
+*.log
+
+# Storage
+storage/
+services/document-service/storage/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

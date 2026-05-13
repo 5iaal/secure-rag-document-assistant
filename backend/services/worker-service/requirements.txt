@@ -1,0 +1,7 @@
+python-dotenv
+pydantic
+pydantic-settings
+sqlalchemy
+psycopg2-binary
+aio-pika
+cryptography

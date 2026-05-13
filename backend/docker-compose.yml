@@ -1,0 +1,136 @@
+services:
+  nginx-gateway:
+    image: nginx:latest
+    container_name: nginx-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./gateway-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./gateway-nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - auth-service
+      - document-service
+      - rag-service
+      - audit-service
+      - frontend
+    networks:
+      - secure-rag-network
+
+  frontend:
+    build: ../frontend
+    container_name: frontend
+    networks:
+      - secure-rag-network
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - secure-rag-network
+
+  document-service:
+    build: ./services/document-service
+    container_name: document-service
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - secure-rag-network
+    volumes:
+      - document_storage:/app/storage
+
+  rag-service:
+    build: ./services/rag-service
+    container_name: rag-service
+    env_file:
+      - .env
+    depends_on:
+      - chromadb
+      - ollama
+    networks:
+      - secure-rag-network
+
+  worker-service:
+    build: ./services/worker-service
+    container_name: worker-service
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - chromadb
+      - postgres
+    networks:
+      - secure-rag-network
+    volumes:
+      - document_storage:/app/storage
+
+  audit-service:
+    build: ./services/audit-service
+    container_name: audit-service
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - secure-rag-network
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - secure-rag-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - secure-rag-network
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    networks:
+      - secure-rag-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - secure-rag-network
+
+volumes:
+  postgres_data:
+  document_storage:
+  chroma_data:
+  ollama_data:
+
+networks:
+  secure-rag-network:
+    driver: bridge
