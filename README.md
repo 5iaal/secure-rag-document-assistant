@@ -1,4 +1,4 @@
-# 🔐 Secure RAG Document Assistant
+# 🛡️ Secure Distributed RAG Document Assistant
 
 > AI-powered secure distributed document processing & RAG platform built with **FastAPI, React, RabbitMQ, PostgreSQL, Docker, Ollama, and ChromaDB**.
 
@@ -63,6 +63,8 @@
 * ✅ Automatic admin seeding
 * ✅ Nginx rate limiting
 * ✅ Secure API gateway
+* ✅ Frontend route protection
+* ✅ Persistent login sessions
 
 ---
 
@@ -77,6 +79,8 @@
 * ✅ Integrity verification
 * ✅ Encrypted storage
 * ✅ Ownership-based access control
+* ✅ Background document processing
+* ✅ Distributed processing queue
 
 ---
 
@@ -88,6 +92,8 @@
 * ✅ Distributed document pipeline
 * ✅ Service isolation
 * ✅ Dockerized infrastructure
+* ✅ API Gateway routing
+* ✅ Async processing architecture
 
 ---
 
@@ -95,64 +101,24 @@
 
 * ✅ Ollama integration
 * ✅ ChromaDB vector database
+* ✅ `nomic-embed-text` embeddings
 * ✅ Async document processing pipeline
-* 🚧 Embeddings pipeline
-* 🚧 Semantic retrieval
-* 🚧 AI chat with uploaded documents
+* ✅ Semantic retrieval
+* ✅ AI chat with uploaded documents
+* ✅ Source chunk references
+* ✅ Context-aware AI responses
 
 ---
 
-# 🛠️ Tech Stack
+## 🧾 Audit & Monitoring
 
-## ⚙️ Backend
-
-* FastAPI
-* SQLAlchemy
-* PostgreSQL
-* RabbitMQ
-* aio-pika
-* bcrypt
-* JWT
-* Fernet Encryption
-
----
-
-## 🎨 Frontend
-
-* React
-* Vite
-* TailwindCSS
-* React Router
-
----
-
-## 🧠 AI / RAG
-
-* Ollama
-* ChromaDB
-
----
-
-## 🐳 Infrastructure
-
-* Docker
-* Docker Compose
-* Nginx
-* Microservices Architecture
-
----
-
-# 🧩 Services
-
-| Service             | Purpose                     |
-| ------------------- | --------------------------- |
-| 🔑 auth-service     | Authentication, JWT, RBAC   |
-| 📄 document-service | Secure upload & encryption  |
-| ⚙️ worker-service   | Async background processing |
-| 🧠 rag-service      | RAG & embeddings pipeline   |
-| 📋 audit-service    | Audit logging               |
-| 🌐 nginx-gateway    | API gateway & rate limiting |
-| 🎨 frontend         | React frontend              |
+* ✅ Distributed audit logging
+* ✅ Login success/failure tracking
+* ✅ User activity monitoring
+* ✅ Service-level audit events
+* ✅ Security monitoring dashboard
+* ✅ Failed login analytics
+* ✅ Admin monitoring panel
 
 ---
 
@@ -180,11 +146,77 @@
 ⚙️ Worker consumes job
         │
         ▼
-✅ Integrity verification
+🧠 Text extraction + chunking
         │
         ▼
-🎉 Document marked as processed
+📦 Embeddings stored in ChromaDB
+        │
+        ▼
+🤖 RAG Service retrieves context
+        │
+        ▼
+💬 AI generates contextual answer
 ```
+
+---
+
+# 🛠️ Tech Stack
+
+## ⚙️ Backend
+
+* FastAPI
+* SQLAlchemy
+* PostgreSQL
+* RabbitMQ
+* aio-pika
+* JWT
+* bcrypt
+* Fernet Encryption
+* ChromaDB
+* Ollama
+
+---
+
+## 🎨 Frontend
+
+* React
+* Vite
+* TailwindCSS
+* React Router
+* Lucide Icons
+
+---
+
+## 🧠 AI / RAG
+
+* Ollama
+* ChromaDB
+* nomic-embed-text
+* Semantic Retrieval
+* Vector Embeddings
+
+---
+
+## 🐳 Infrastructure
+
+* Docker
+* Docker Compose
+* Nginx
+* Microservices Architecture
+
+---
+
+# 🧩 Services
+
+| Service             | Purpose                     |
+| ------------------- | --------------------------- |
+| 🔑 auth-service     | Authentication, JWT, RBAC   |
+| 📄 document-service | Secure upload & encryption  |
+| ⚙️ worker-service   | Async background processing |
+| 🧠 rag-service      | RAG & embeddings pipeline   |
+| 📋 audit-service    | Audit logging               |
+| 🌐 nginx-gateway    | API gateway & rate limiting |
+| 🎨 frontend         | React frontend              |
 
 ---
 
@@ -200,6 +232,33 @@
 * 🚦 API rate limiting
 * 👥 Ownership validation
 * 🌐 Secure gateway routing
+* 🧾 Audit trail logging
+* ⚡ Queue isolation
+
+---
+
+# 🎨 Frontend Features
+
+## 👤 User Features
+
+* Secure Login/Register
+* Upload encrypted documents
+* Verify document integrity
+* AI document chat
+* Document dashboard
+* Secure settings page
+* Session persistence
+
+---
+
+## 🛡️ Admin Features
+
+* Admin dashboard
+* Audit log viewer
+* Failed login tracking
+* Security monitoring
+* Service analytics
+* System activity overview
 
 ---
 
@@ -209,12 +268,14 @@
 secure-rag-document-assistant/
 │
 ├── frontend/
-├── gateway-nginx/
-├── infrastructure/
+│   ├── src/
+│   ├── pages/
+│   ├── components/
+│   └── api/
 │
 ├── backend/
 │   ├── docker-compose.yml
-│   ├── .env
+│   ├── nginx/
 │   │
 │   └── services/
 │       ├── auth-service/
@@ -222,11 +283,13 @@ secure-rag-document-assistant/
 │       ├── worker-service/
 │       ├── rag-service/
 │       └── audit-service/
+│
+└── README.md
 ```
 
 ---
 
-# 🚀 Setup
+# ⚙️ Setup & Installation
 
 ## 📥 Clone Repository
 
@@ -237,10 +300,37 @@ cd secure-rag-document-assistant
 
 ---
 
-# 🐳 Run with Docker
+## 🐳 Run Docker Infrastructure
 
 ```bash
-docker compose up --build
+cd backend
+docker compose up -d --build
+```
+
+---
+
+## 📦 Verify Running Containers
+
+```bash
+docker compose ps
+```
+
+---
+
+## 🧠 Pull Embedding Model
+
+```bash
+docker exec -it ollama ollama pull nomic-embed-text
+```
+
+---
+
+## 🎨 Start Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 ---
@@ -256,77 +346,92 @@ docker compose up --build
 
 # 📡 API Examples
 
-## 🔐 Register
+## 🔐 Login
 
-```http
-POST /api/auth/register
-```
-
----
-
-## 🔑 Login
-
-```http
-POST /api/auth/login
+```powershell
+Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"email":"admin@secure-rag.com","password":"Admin12345"}'
 ```
 
 ---
 
 ## 📄 Upload Document
 
-```http
-POST /api/documents/upload
+```powershell
+curl.exe -X POST "http://localhost/api/documents/upload" `
+  -H "Authorization: Bearer TOKEN" `
+  -F "file=@test.pdf;type=application/pdf"
 ```
 
 ---
 
-## ✅ Verify Integrity
+## 🤖 Ask AI
 
-```http
-GET /api/documents/{id}/verify
+```powershell
+Invoke-RestMethod -Uri "http://localhost/api/rag/ask" `
+  -Method POST `
+  -Headers @{Authorization="Bearer TOKEN"} `
+  -ContentType "application/json" `
+  -Body '{"question":"What is this document about?","top_k":4}'
 ```
 
 ---
 
-# 🚧 Planned Features
-
-* 📄 PDF text extraction
-* 👁️ OCR support
-* 🧠 Embeddings generation
-* 🔎 ChromaDB semantic search
-* 🤖 Ollama LLM integration
-* 💬 AI chat with documents
-* ⚡ Streaming AI responses
-* 📊 Audit dashboard
-* 🤝 Document sharing
-* ⚡ Redis caching
-* ☸️ Kubernetes deployment
-* 🔄 CI/CD pipeline
-
----
-
-# 📌 Current Status
+# 📈 Current Project Status
 
 ## ✅ Completed
 
-* Authentication system
-* RBAC
-* JWT protection
-* Secure document upload
-* Encryption pipeline
-* RabbitMQ integration
-* Worker processing
-* Distributed architecture
-* Dockerized infrastructure
+* Distributed microservices architecture
+* JWT authentication system
+* RBAC authorization
+* React frontend integration
+* Secure PDF upload
+* Background document processing
+* ChromaDB vector indexing
+* Ollama embeddings integration
+* AI RAG querying
+* Audit logging service
+* Admin dashboard
+* Document integrity verification
+* Protected frontend routes
+* Dockerized deployment
 
 ---
 
-## 🚧 In Progress
+## 🚧 Planned Improvements
 
-* RAG pipeline
-* Embeddings
-* AI document chat
-* ChromaDB indexing
+* HTTPS certificates
+* File download endpoint
+* OCR support
+* Real-time notifications
+* Multi-file contextual chat
+* Streaming AI responses
+* Redis caching
+* Kubernetes deployment
+* CI/CD pipeline
+* Refresh token authentication
+
+---
+
+# 📸 Screenshots
+
+## 🔐 Login Page
+
+<img width="100%" alt="Login" src="screenshots/login.png" />
+
+---
+
+## 📊 Dashboard
+
+<img width="100%" alt="Dashboard" src="screenshots/dashboard.png" />
+
+---
+
+## 🤖 AI Chat
+
+<img width="100%" alt="AI Chat" src="screenshots/ai-chat.png" />
 
 ---
 
@@ -338,6 +443,22 @@ GET /api/documents/{id}/verify
 * 🔥 Production-Style Microservices
 * 🔥 AI + Cybersecurity Combination
 * 🔥 Dockerized End-to-End System
+* 🔥 Local AI Processing
+* 🔥 Enterprise-style Security Monitoring
+
+---
+
+# 👨‍💻 Author
+
+## Ahmad Elkhial
+
+* Cybersecurity & AI Developer
+* Distributed Systems Enthusiast
+* Backend & AI Engineer
+
+GitHub:
+
+[https://github.com/5iaal](https://github.com/5iaal)
 
 ---
 
