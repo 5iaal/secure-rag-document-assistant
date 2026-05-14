@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="RAG Service")
+from app.routes.rag_routes import router as rag_router
+
+app = FastAPI(
+    title="RAG Service",
+    description="Retrieval-Augmented Generation service using ChromaDB and Ollama",
+    version="1.0.0",
+)
+
+app.include_router(rag_router)
+
 
 @app.get("/health")
 def health_check():
-    return {"service": "rag-service", "status": "healthy"}
-
-@app.get("/rag/health")
-def rag_health():
     return {"service": "rag-service", "status": "healthy"}

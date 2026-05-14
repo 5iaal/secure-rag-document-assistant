@@ -5,18 +5,10 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_user: str
     postgres_password: str
-
     jwt_secret: str
     internal_api_key: str
 
-    admin_full_name: str = "System Admin"
-    admin_email: str = "admin@secure-rag.com"
-    admin_password: str = "Admin12345"
-
-    audit_service_url: str = "http://audit-service:8000/audit/events"
-
     jwt_algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60
 
     @property
     def database_url(self) -> str:

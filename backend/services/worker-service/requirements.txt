@@ -5,3 +5,7 @@ sqlalchemy
 psycopg2-binary
 aio-pika
 cryptography
+pypdf
+chromadb
+httpx
+numpy<2

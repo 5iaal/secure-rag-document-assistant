@@ -1,27 +1,105 @@
+# =========================
+
 # Python
-__pycache__/
+
+# =========================
+
+**pycache**/
 *.pyc
 *.pyo
 *.pyd
+*.sqlite3
 *.db
+.venv/
+venv/
+env/
 
-# Env
-.env
+# =========================
 
-# Node
+# Node / React
+
+# =========================
+
 node_modules/
 dist/
+build/
 
-# Docker
+# =========================
+
+# Environment Variables
+
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+
+# Uploaded / Generated Files
+
+# =========================
+
+uploads/
+storage/
+data/
+*.enc
+*.pdf
+*.docx
+
+# =========================
+
+# Logs
+
+# =========================
+
+logs/
 *.log
 
-# Storage
-storage/
-services/document-service/storage/
+# =========================
 
-# VSCode
+# Docker
+
+# =========================
+
+docker-data/
+volumes/
+
+# =========================
+
+# IDE
+
+# =========================
+
 .vscode/
+.idea/
+
+# =========================
 
 # OS
+
+# =========================
+
 .DS_Store
 Thumbs.db
+
+# =========================
+
+# AI / Models
+
+# =========================
+
+models/
+ollama-data/
+chromadb-data/
+
+# =========================
+
+# Secrets
+
+# =========================
+
+secrets/
+keys/
+*.pem
+*.key

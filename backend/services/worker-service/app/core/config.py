@@ -11,6 +11,10 @@ class Settings(BaseSettings):
 
     fernet_key: str
 
+    chroma_host: str = "chromadb"
+    chroma_port: int = 8000
+    chroma_collection_name: str = "documents"
+
     @property
     def database_url(self) -> str:
         return (

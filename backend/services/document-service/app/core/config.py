@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     postgres_password: str
     jwt_secret: str
     internal_api_key: str
+    audit_service_url: str = "http://audit-service:8000/audit/events"
 
     rabbitmq_user: str
     rabbitmq_password: str

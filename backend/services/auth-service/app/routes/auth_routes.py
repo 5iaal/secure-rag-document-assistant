@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -21,13 +21,29 @@ def health_check():
 
 
 @router.post("/register", response_model=UserResponse)
-def register(payload: RegisterRequest, db: Session = Depends(get_db)):
-    return register_user(db, payload)
+def register(
+    payload: RegisterRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    return register_user(
+        db=db,
+        payload=payload,
+        ip_address=request.client.host if request.client else None,
+    )
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    return login_user(db, payload)
+def login(
+    payload: LoginRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    return login_user(
+        db=db,
+        payload=payload,
+        ip_address=request.client.host if request.client else None,
+    )
 
 
 @router.get("/me", response_model=UserResponse)
