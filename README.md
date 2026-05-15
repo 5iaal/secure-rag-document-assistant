@@ -1,6 +1,3 @@
-انسخ ده كله وحطه في `README.md`:
-
-````markdown
 # 🛡️ Secure Distributed RAG Document Assistant
 
 > AI-powered secure distributed document processing and RAG platform built with **FastAPI, React, RabbitMQ, PostgreSQL, Docker, Nginx, Ollama, and ChromaDB**.
