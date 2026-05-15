@@ -82,16 +82,34 @@ def encrypt_file(file_bytes: bytes) -> tuple[str, str]:
     return stored_filename, str(encrypted_path)
 
 
-def verify_file_integrity(encrypted_path: str, expected_hash: str) -> bool:
+def decrypt_file(encrypted_path: str) -> bytes:
     fernet = Fernet(settings.fernet_key.encode())
 
     if not os.path.exists(encrypted_path):
-        return False
+        raise FileNotFoundError("Encrypted file not found")
 
     with open(encrypted_path, "rb") as f:
         encrypted_bytes = f.read()
 
-    decrypted_bytes = fernet.decrypt(encrypted_bytes)
+    return fernet.decrypt(encrypted_bytes)
+
+
+def verify_file_integrity(encrypted_path: str, expected_hash: str) -> bool:
+    if not os.path.exists(encrypted_path):
+        return False
+
+    decrypted_bytes = decrypt_file(encrypted_path)
     current_hash = calculate_sha256(decrypted_bytes)
 
     return current_hash == expected_hash
+
+
+def delete_encrypted_file(encrypted_path: str) -> bool:
+    if not encrypted_path:
+        return False
+
+    if not os.path.exists(encrypted_path):
+        return False
+
+    os.remove(encrypted_path)
+    return True

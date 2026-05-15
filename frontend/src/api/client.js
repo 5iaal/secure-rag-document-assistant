@@ -1,15 +1,15 @@
 const API_BASE_URL = "/api";
 
 export function getToken() {
-  return localStorage.getItem("access_token");
+  return sessionStorage.getItem("access_token");
 }
 
 export function setToken(token) {
-  localStorage.setItem("access_token", token);
+  sessionStorage.setItem("access_token", token);
 }
 
 export function clearToken() {
-  localStorage.removeItem("access_token");
+  sessionStorage.removeItem("access_token");
 }
 
 export async function apiRequest(path, options = {}) {

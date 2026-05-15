@@ -1,11 +1,14 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Bell, Search, ChevronDown, Menu } from "lucide-react";
-import { logoutUser } from "../../api/auth";
+import { logoutUser, getCurrentUser } from "../../api/auth";
 
 export default function TopNav({ toggleSidebar }) {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const pathParts = location.pathname.split("/").filter(Boolean);
   const breadcrumb = pathParts.map((p, i) => ({
@@ -13,12 +16,37 @@ export default function TopNav({ toggleSidebar }) {
     path: `/${pathParts.slice(0, i + 1).join("/")}`,
   }));
 
-  if (breadcrumb.length === 0) breadcrumb.push({ label: "Home", path: "/" });
+  if (breadcrumb.length === 0) {
+    breadcrumb.push({ label: "Home", path: "/" });
+  }
 
-  const [profileOpen, setProfileOpen] = useState(false);
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user);
 
-  const role = localStorage.getItem("user_role") || "user";
-  const email = role === "admin" ? "admin@secure-rag.com" : "user@secure-rag.com";
+        if (user?.role) {
+          sessionStorage.setItem("user_role", user.role);
+        }
+
+        if (user?.id) {
+          sessionStorage.setItem("user_id", user.id);
+        }
+      } catch (err) {
+        console.error("Failed to load current user:", err);
+      }
+    };
+
+    loadCurrentUser();
+  }, []);
+
+  const role = currentUser?.role || sessionStorage.getItem("user_role") || "user";
+  const email = currentUser?.email || "loading...";
+  const fullName =
+    currentUser?.full_name || (role === "admin" ? "Admin" : "User");
+
+  const avatarLetter = fullName.charAt(0).toUpperCase();
 
   const handleLogout = () => {
     logoutUser();
@@ -43,6 +71,7 @@ export default function TopNav({ toggleSidebar }) {
                 <Link to={b.path} className="hover:text-cyber-cyan transition">
                   {b.label}
                 </Link>
+
                 {i < breadcrumb.length - 1 && <span className="mx-2">/</span>}
               </span>
             ))}
@@ -52,6 +81,7 @@ export default function TopNav({ toggleSidebar }) {
         <div className="flex items-center gap-3">
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+
             <input
               type="text"
               placeholder="Search system..."
@@ -61,6 +91,7 @@ export default function TopNav({ toggleSidebar }) {
 
           <button className="relative p-2 text-gray-400 hover:text-white transition">
             <Bell size={20} />
+
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
           </button>
 
@@ -70,19 +101,22 @@ export default function TopNav({ toggleSidebar }) {
               className="flex items-center gap-2 p-1 pr-3 rounded-lg hover:bg-white/5 transition"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyber-cyan to-cyber-blue flex items-center justify-center text-white font-bold">
-                {role === "admin" ? "A" : "U"}
+                {avatarLetter}
               </div>
+
               <span className="hidden sm:block text-sm font-medium">
-                {role === "admin" ? "Admin" : "User"}
+                {fullName}
               </span>
+
               <ChevronDown size={14} className="text-gray-400" />
             </button>
 
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 glass p-2 z-50">
+              <div className="absolute right-0 top-full mt-2 w-64 glass p-2 z-50">
                 <div className="px-3 py-2 border-b border-white/10 mb-2">
-                  <p className="text-sm font-medium">{email}</p>
-                  <p className="text-xs text-gray-400">Role: {role}</p>
+                  <p className="text-sm font-medium truncate">{fullName}</p>
+                  <p className="text-xs text-gray-400 truncate">{email}</p>
+                  <p className="text-xs text-cyber-cyan mt-1">Role: {role}</p>
                 </div>
 
                 <button className="w-full text-left px-3 py-2 text-sm hover:bg-white/5 rounded">

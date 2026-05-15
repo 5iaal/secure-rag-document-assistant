@@ -7,6 +7,7 @@ from app.utils.file_security import (
     validate_pdf_file,
     calculate_sha256,
     encrypt_file,
+    delete_encrypted_file,
 )
 
 
@@ -51,10 +52,32 @@ def list_my_documents(db: Session, user_payload: dict) -> list[Document]:
     )
 
 
-def get_document_by_id(db: Session, document_id: int, user_payload: dict) -> Document | None:
+def get_document_by_id(
+    db: Session,
+    document_id: int,
+    user_payload: dict,
+) -> Document | None:
     query = db.query(Document).filter(Document.id == document_id)
 
     if user_payload["role"] != "admin":
         query = query.filter(Document.owner_id == user_payload["user_id"])
 
     return query.first()
+
+
+def delete_document_by_id(
+    db: Session,
+    document_id: int,
+    user_payload: dict,
+) -> Document | None:
+    document = get_document_by_id(db, document_id, user_payload)
+
+    if not document:
+        return None
+
+    delete_encrypted_file(document.encrypted_path)
+
+    db.delete(document)
+    db.commit()
+
+    return document

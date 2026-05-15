@@ -1,6 +1,9 @@
+انسخ ده كله وحطه في `README.md`:
+
+````markdown
 # 🛡️ Secure Distributed RAG Document Assistant
 
-> AI-powered secure distributed document processing & RAG platform built with **FastAPI, React, RabbitMQ, PostgreSQL, Docker, Ollama, and ChromaDB**.
+> AI-powered secure distributed document processing and RAG platform built with **FastAPI, React, RabbitMQ, PostgreSQL, Docker, Nginx, Ollama, and ChromaDB**.
 
 ---
 
@@ -16,7 +19,7 @@
                 ┌────────────────────┐
                 │   Nginx Gateway    │
                 │ Rate Limiting +    │
-                │ Secure Routing     │
+                │ HTTPS + Routing    │
                 └─────────┬──────────┘
                           │
       ┌───────────────────┼───────────────────┐
@@ -24,18 +27,18 @@
 ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
 │ Auth        │   │ Document    │   │ RAG         │
 │ Service     │   │ Service     │   │ Service     │
-└─────┬───────┘   └─────┬───────┘   └─────────────┘
-      │                 │
-      │                 ▼
-      │         ┌─────────────┐
-      │         │ RabbitMQ    │
-      │         │ Queue       │
-      │         └─────┬───────┘
-      │               ▼
-      │        ┌─────────────┐
-      │        │ Worker      │
-      │        │ Service     │
-      │        └─────┬───────┘
+└─────┬───────┘   └─────┬───────┘   └─────┬───────┘
+      │                 │                 │
+      │                 ▼                 ▼
+      │         ┌─────────────┐   ┌─────────────┐
+      │         │ RabbitMQ    │   │ ChromaDB    │
+      │         │ Queue       │   │ Vector DB   │
+      │         └─────┬───────┘   └─────┬───────┘
+      │               ▼                 ▼
+      │        ┌─────────────┐   ┌─────────────┐
+      │        │ Worker      │   │ Ollama      │
+      │        │ Service     │   │ Local AI    │
+      │        └─────┬───────┘   └─────────────┘
       │              ▼
       │      ┌───────────────┐
       └────► │ PostgreSQL    │
@@ -43,10 +46,10 @@
 
                     ▼
              ┌───────────────┐
-             │ ChromaDB      │
-             │ + Ollama      │
+             │ Audit Service │
+             │ Logs + Trace  │
              └───────────────┘
-```
+````
 
 ---
 
@@ -55,45 +58,55 @@
 ## 🔐 Authentication & Security
 
 * ✅ JWT Authentication
-* ✅ Role-Based Access Control (RBAC)
+* ✅ Email/password login
+* ✅ User registration
+* ✅ Google OAuth login
+* ✅ GitHub OAuth login
+* ✅ Role-Based Access Control
 * ✅ Admin/User separation
 * ✅ Secure password hashing with bcrypt
 * ✅ Protected API routes
+* ✅ Protected frontend routes
 * ✅ Admin-only endpoints
 * ✅ Automatic admin seeding
+* ✅ Secure session handling using `sessionStorage`
+* ✅ Logout clears session immediately
 * ✅ Nginx rate limiting
-* ✅ Secure API gateway
-* ✅ Frontend route protection
-* ✅ Persistent login sessions
+* ✅ API Gateway security headers
+* ✅ HTTPS support using self-signed local certificate
 
 ---
 
-## 📄 Secure Document Processing
+## 📄 Secure Document Management
 
 * ✅ PDF-only upload validation
-* ✅ File signature verification
+* ✅ MIME type validation
+* ✅ PDF signature verification
 * ✅ Dangerous extension blocking
 * ✅ Filename sanitization
 * ✅ SHA-256 hashing
 * ✅ Fernet encryption
+* ✅ Encrypted file storage
 * ✅ Integrity verification
-* ✅ Encrypted storage
 * ✅ Ownership-based access control
-* ✅ Background document processing
-* ✅ Distributed processing queue
+* ✅ Document download with decryption
+* ✅ Document delete flow
+* ✅ Document metadata stored in PostgreSQL
+* ✅ Async document processing using RabbitMQ
 
 ---
 
 ## ⚡ Distributed Processing
 
 * ✅ Microservices architecture
+* ✅ Dockerized services
 * ✅ RabbitMQ async messaging
 * ✅ Worker-based background processing
 * ✅ Distributed document pipeline
 * ✅ Service isolation
-* ✅ Dockerized infrastructure
 * ✅ API Gateway routing
-* ✅ Async processing architecture
+* ✅ Queue-based processing
+* ✅ PostgreSQL persistence
 
 ---
 
@@ -102,7 +115,9 @@
 * ✅ Ollama integration
 * ✅ ChromaDB vector database
 * ✅ `nomic-embed-text` embeddings
-* ✅ Async document processing pipeline
+* ✅ PDF text extraction
+* ✅ Text chunking
+* ✅ Vector indexing
 * ✅ Semantic retrieval
 * ✅ AI chat with uploaded documents
 * ✅ Source chunk references
@@ -110,15 +125,20 @@
 
 ---
 
-## 🧾 Audit & Monitoring
+## 🧾 Audit, Monitoring & Traceability
 
-* ✅ Distributed audit logging
+* ✅ Centralized audit logging
 * ✅ Login success/failure tracking
-* ✅ User activity monitoring
-* ✅ Service-level audit events
-* ✅ Security monitoring dashboard
-* ✅ Failed login analytics
-* ✅ Admin monitoring panel
+* ✅ OAuth login audit events
+* ✅ Document upload audit events
+* ✅ Document integrity audit events
+* ✅ Document download audit events
+* ✅ Document delete audit events
+* ✅ Distributed `X-Request-ID` tracing
+* ✅ Request ID propagated from Nginx to services
+* ✅ Request ID stored in audit logs
+* ✅ Admin audit log viewer
+* ✅ Admin monitoring dashboard
 
 ---
 
@@ -146,6 +166,9 @@
 ⚙️ Worker consumes job
         │
         ▼
+✅ Integrity verification
+        │
+        ▼
 🧠 Text extraction + chunking
         │
         ▼
@@ -155,7 +178,10 @@
 🤖 RAG Service retrieves context
         │
         ▼
-💬 AI generates contextual answer
+💬 Ollama generates contextual answer
+        │
+        ▼
+🧾 Audit logs store action + request_id
 ```
 
 ---
@@ -174,6 +200,8 @@
 * Fernet Encryption
 * ChromaDB
 * Ollama
+* httpx
+* pypdf
 
 ---
 
@@ -184,6 +212,7 @@
 * TailwindCSS
 * React Router
 * Lucide Icons
+* Session Storage Auth
 
 ---
 
@@ -191,9 +220,10 @@
 
 * Ollama
 * ChromaDB
-* nomic-embed-text
+* `nomic-embed-text`
 * Semantic Retrieval
 * Vector Embeddings
+* Local LLM Generation
 
 ---
 
@@ -202,21 +232,26 @@
 * Docker
 * Docker Compose
 * Nginx
+* HTTPS
 * Microservices Architecture
 
 ---
 
 # 🧩 Services
 
-| Service             | Purpose                     |
-| ------------------- | --------------------------- |
-| 🔑 auth-service     | Authentication, JWT, RBAC   |
-| 📄 document-service | Secure upload & encryption  |
-| ⚙️ worker-service   | Async background processing |
-| 🧠 rag-service      | RAG & embeddings pipeline   |
-| 📋 audit-service    | Audit logging               |
-| 🌐 nginx-gateway    | API gateway & rate limiting |
-| 🎨 frontend         | React frontend              |
+| Service             | Purpose                                     |
+| ------------------- | ------------------------------------------- |
+| 🔑 auth-service     | Authentication, JWT, OAuth, RBAC            |
+| 📄 document-service | Secure upload, encryption, download, delete |
+| ⚙️ worker-service   | Async PDF processing and vector indexing    |
+| 🧠 rag-service      | RAG retrieval and AI answer generation      |
+| 📋 audit-service    | Centralized audit logs and request tracing  |
+| 🌐 nginx-gateway    | API gateway, HTTPS, rate limiting           |
+| 🐘 postgres         | Relational database                         |
+| 🐇 rabbitmq         | Message queue                               |
+| 🧠 chromadb         | Vector database                             |
+| 🤖 ollama           | Local AI embeddings and generation          |
+| 🎨 frontend         | React frontend                              |
 
 ---
 
@@ -224,6 +259,8 @@
 
 * 🔑 JWT verification
 * 👤 Role-based authorization
+* 🌐 Google OAuth
+* 🐙 GitHub OAuth
 * 🛡️ Secure file validation
 * 📄 PDF signature checks
 * 🔐 SHA-256 integrity checks
@@ -233,7 +270,10 @@
 * 👥 Ownership validation
 * 🌐 Secure gateway routing
 * 🧾 Audit trail logging
+* 🔍 Distributed request tracing
 * ⚡ Queue isolation
+* 🧯 Security headers
+* 🔐 HTTPS support
 
 ---
 
@@ -242,12 +282,17 @@
 ## 👤 User Features
 
 * Secure Login/Register
+* Google OAuth login
+* GitHub OAuth login
 * Upload encrypted documents
+* List user documents
 * Verify document integrity
-* AI document chat
-* Document dashboard
-* Secure settings page
-* Session persistence
+* Download decrypted PDF
+* Delete documents
+* AI chat with indexed documents
+* User dashboard
+* Settings page
+* Session ends when tab/browser closes
 
 ---
 
@@ -259,6 +304,7 @@
 * Security monitoring
 * Service analytics
 * System activity overview
+* Request ID visibility in logs
 
 ---
 
@@ -269,13 +315,16 @@ secure-rag-document-assistant/
 │
 ├── frontend/
 │   ├── src/
-│   ├── pages/
-│   ├── components/
-│   └── api/
+│   │   ├── api/
+│   │   ├── pages/
+│   │   └── components/
+│   └── vite.config.js
 │
 ├── backend/
 │   ├── docker-compose.yml
-│   ├── nginx/
+│   ├── gateway-nginx/
+│   │   ├── nginx.conf
+│   │   └── certs/
 │   │
 │   └── services/
 │       ├── auth-service/
@@ -284,6 +333,7 @@ secure-rag-document-assistant/
 │       ├── rag-service/
 │       └── audit-service/
 │
+├── .gitignore
 └── README.md
 ```
 
@@ -317,7 +367,7 @@ docker compose ps
 
 ---
 
-## 🧠 Pull Embedding Model
+## 🧠 Pull Ollama Embedding Model
 
 ```bash
 docker exec -it ollama ollama pull nomic-embed-text
@@ -338,8 +388,30 @@ npm run dev
 # 👑 Default Admin Account
 
 ```text
-📧 Email: admin@secure-rag.com
-🔑 Password: Admin12345
+Email: admin@secure-rag.com
+Password: Admin12345
+```
+
+---
+
+# 🔐 OAuth Setup
+
+## GitHub OAuth Callback
+
+```text
+http://localhost/api/auth/github/callback
+```
+
+## Google OAuth Callback
+
+```text
+http://localhost/api/auth/google/callback
+```
+
+Add your credentials in:
+
+```text
+backend/.env
 ```
 
 ---
@@ -367,6 +439,36 @@ curl.exe -X POST "http://localhost/api/documents/upload" `
 
 ---
 
+## ✅ Verify Integrity
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost/api/documents/1/verify" `
+  -Method GET `
+  -Headers @{Authorization="Bearer TOKEN"}
+```
+
+---
+
+## 📥 Download Document
+
+```powershell
+curl.exe -L "http://localhost/api/documents/1/download" `
+  -H "Authorization: Bearer TOKEN" `
+  -o "downloaded-file.pdf"
+```
+
+---
+
+## 🗑️ Delete Document
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost/api/documents/1" `
+  -Method DELETE `
+  -Headers @{Authorization="Bearer TOKEN"}
+```
+
+---
+
 ## 🤖 Ask AI
 
 ```powershell
@@ -379,39 +481,63 @@ Invoke-RestMethod -Uri "http://localhost/api/rag/ask" `
 
 ---
 
+## 🔍 Test Request ID Tracing
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
+  -Method POST `
+  -Headers @{"X-Request-ID"="test-auth-request-123"} `
+  -ContentType "application/json" `
+  -Body '{"email":"admin@secure-rag.com","password":"Admin12345"}'
+```
+
+---
+
 # 📈 Current Project Status
 
 ## ✅ Completed
 
 * Distributed microservices architecture
 * JWT authentication system
+* Google OAuth
+* GitHub OAuth
 * RBAC authorization
+* Secure session management
 * React frontend integration
 * Secure PDF upload
+* Document download
+* Document delete
 * Background document processing
+* PDF extraction and chunking
 * ChromaDB vector indexing
 * Ollama embeddings integration
 * AI RAG querying
 * Audit logging service
+* Request ID tracing
 * Admin dashboard
 * Document integrity verification
 * Protected frontend routes
+* HTTPS support
+* Rate limiting
 * Dockerized deployment
 
 ---
 
 ## 🚧 Planned Improvements
 
-* HTTPS certificates
-* File download endpoint
+* Improve RAG answer quality
+* RAG audit events
+* Worker processing audit events
+* Admin stats endpoint
 * OCR support
-* Real-time notifications
-* Multi-file contextual chat
 * Streaming AI responses
+* Toast notifications
+* Better upload progress
+* Better frontend chat UX
+* Dead-letter queue / retry policies
 * Redis caching
 * Kubernetes deployment
 * CI/CD pipeline
-* Refresh token authentication
 
 ---
 
@@ -429,9 +555,21 @@ Invoke-RestMethod -Uri "http://localhost/api/rag/ask" `
 
 ---
 
+## 📄 Documents
+
+<img width="100%" alt="Documents" src="screenshots/documents.png" />
+
+---
+
 ## 🤖 AI Chat
 
 <img width="100%" alt="AI Chat" src="screenshots/ai-chat.png" />
+
+---
+
+## 🧾 Audit Logs
+
+<img width="100%" alt="Audit Logs" src="screenshots/audit-logs.png" />
 
 ---
 
@@ -439,12 +577,14 @@ Invoke-RestMethod -Uri "http://localhost/api/rag/ask" `
 
 * 🔥 Fully Distributed Architecture
 * 🔥 Secure-by-Design Backend
+* 🔥 OAuth + JWT Authentication
 * 🔥 Async Processing Pipeline
 * 🔥 Production-Style Microservices
 * 🔥 AI + Cybersecurity Combination
 * 🔥 Dockerized End-to-End System
 * 🔥 Local AI Processing
 * 🔥 Enterprise-style Security Monitoring
+* 🔥 Request Tracing and Auditability
 
 ---
 
@@ -465,3 +605,6 @@ GitHub:
 # 📜 License
 
 MIT License
+
+```
+```

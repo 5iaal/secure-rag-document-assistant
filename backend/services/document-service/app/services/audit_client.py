@@ -11,8 +11,10 @@ def send_audit_event(
     user_email: str | None = None,
     ip_address: str | None = None,
     details: str | None = None,
+    request_id: str | None = None,
 ) -> None:
     payload = {
+        "request_id": request_id,
         "user_id": user_id,
         "user_email": user_email,
         "service_name": service_name,
@@ -25,6 +27,9 @@ def send_audit_event(
     headers = {
         "X-Internal-API-Key": settings.internal_api_key,
     }
+
+    if request_id:
+        headers["X-Request-ID"] = request_id
 
     try:
         with httpx.Client(timeout=3) as client:

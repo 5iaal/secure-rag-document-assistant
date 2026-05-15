@@ -15,6 +15,15 @@ class Settings(BaseSettings):
 
     audit_service_url: str = "http://audit-service:8000/audit/events"
 
+    github_client_id: str = ""
+    github_client_secret: str = ""
+
+    google_client_id: str = ""
+    google_client_secret: str = ""
+
+    frontend_url: str = "http://localhost:3000"
+    oauth_session_secret: str = "super_oauth_session_secret_change_me"
+
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
@@ -27,6 +36,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

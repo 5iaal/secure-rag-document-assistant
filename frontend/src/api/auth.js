@@ -7,8 +7,8 @@ export async function loginUser(email, password) {
   });
 
   setToken(data.access_token);
-  localStorage.setItem("user_role", data.role);
-  localStorage.setItem("user_id", data.user_id);
+  sessionStorage.setItem("user_role", data.role);
+  sessionStorage.setItem("user_id", data.user_id);
 
   return data;
 }
@@ -30,6 +30,6 @@ export async function getCurrentUser() {
 
 export function logoutUser() {
   clearToken();
-  localStorage.removeItem("user_role");
-  localStorage.removeItem("user_id");
+  sessionStorage.removeItem("user_role");
+  sessionStorage.removeItem("user_id");
 }

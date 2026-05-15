@@ -1,105 +1,50 @@
-# =========================
-
 # Python
-
-# =========================
-
-**pycache**/
-*.pyc
-*.pyo
-*.pyd
-*.sqlite3
-*.db
+__pycache__/
+*.py[cod]
 .venv/
 venv/
 env/
 
-# =========================
-
 # Node / React
-
-# =========================
-
 node_modules/
 dist/
 build/
 
-# =========================
-
-# Environment Variables
-
-# =========================
-
+# Environment / Secrets
 .env
 .env.*
 !.env.example
 
-# =========================
-
-# Uploaded / Generated Files
-
-# =========================
-
+# Uploaded / Encrypted files
 uploads/
 storage/
-data/
 *.enc
 *.pdf
 *.docx
 
-# =========================
+# Docker volumes / runtime data
+docker-data/
+volumes/
+ollama-data/
+chromadb-data/
+postgres-data/
+rabbitmq-data/
+
+# Certificates / keys
+*.key
+*.pem
+*.crt
+backend/gateway-nginx/certs/
 
 # Logs
-
-# =========================
-
 logs/
 *.log
 
-# =========================
-
-# Docker
-
-# =========================
-
-docker-data/
-volumes/
-
-# =========================
-
-# IDE
-
-# =========================
-
+# IDE / OS
 .vscode/
 .idea/
-
-# =========================
-
-# OS
-
-# =========================
-
 .DS_Store
 Thumbs.db
 
-# =========================
-
-# AI / Models
-
-# =========================
-
-models/
-ollama-data/
-chromadb-data/
-
-# =========================
-
-# Secrets
-
-# =========================
-
-secrets/
-keys/
-*.pem
-*.key
+# Generated downloads
+downloaded-*.pdf

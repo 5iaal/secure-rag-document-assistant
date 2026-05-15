@@ -4,25 +4,37 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class AuditLogCreate(BaseModel):
+class AuditEventCreate(BaseModel):
+    request_id: Optional[str] = None
+
     user_id: Optional[int] = None
     user_email: Optional[str] = None
+
     service_name: str
     action: str
+
     status: str
     ip_address: Optional[str] = None
+
     details: Optional[str] = None
 
 
-class AuditLogResponse(BaseModel):
+class AuditEventResponse(BaseModel):
     id: int
-    user_id: Optional[int]
-    user_email: Optional[str]
+
+    request_id: Optional[str] = None
+
+    user_id: Optional[int] = None
+    user_email: Optional[str] = None
+
     service_name: str
     action: str
+
     status: str
-    ip_address: Optional[str]
-    details: Optional[str]
+    ip_address: Optional[str] = None
+
+    details: Optional[str] = None
+
     created_at: datetime
 
     class Config:

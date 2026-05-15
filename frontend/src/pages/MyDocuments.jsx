@@ -7,14 +7,22 @@ import {
   FileText,
   Loader2,
   AlertCircle,
+  Download,
 } from "lucide-react";
-import { getMyDocuments, verifyDocument } from "../api/documents";
+
+import {
+  getMyDocuments,
+  verifyDocument,
+  downloadDocument,
+  deleteDocument,
+} from "../api/documents";
 
 export default function MyDocuments() {
   const [search, setSearch] = useState("");
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [verifyingId, setVerifyingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const [message, setMessage] = useState("");
 
   const loadDocuments = async () => {
@@ -67,6 +75,36 @@ export default function MyDocuments() {
     }
   };
 
+  const handleDownload = async (doc) => {
+    try {
+      await downloadDocument(doc.id, doc.original_filename);
+      setMessage(`Downloaded ${doc.original_filename} successfully.`);
+    } catch (err) {
+      setMessage(err.message || "Download failed");
+    }
+  };
+
+  const handleDelete = async (doc) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${doc.original_filename}"?`
+    );
+
+    if (!confirmed) return;
+
+    setMessage("");
+    setDeletingId(doc.id);
+
+    try {
+      await deleteDocument(doc.id);
+      setMessage(`Deleted ${doc.original_filename} successfully.`);
+      await loadDocuments();
+    } catch (err) {
+      setMessage(err.message || "Delete failed");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-gray-400">
@@ -84,6 +122,7 @@ export default function MyDocuments() {
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -136,8 +175,10 @@ export default function MyDocuments() {
 
                         <div>
                           <p className="font-medium">{doc.original_filename}</p>
+
                           <p className="text-xs text-gray-500">
-                            {(doc.file_size / 1024 / 1024).toFixed(2)} MB • ID #{doc.id}
+                            {(doc.file_size / 1024 / 1024).toFixed(2)} MB • ID #
+                            {doc.id}
                           </p>
                         </div>
                       </div>
@@ -171,18 +212,38 @@ export default function MyDocuments() {
                               className="text-green-400 animate-spin"
                             />
                           ) : (
-                            <ShieldCheck size={16} className="text-green-400" />
+                            <ShieldCheck
+                              size={16}
+                              className="text-green-400"
+                            />
                           )}
                         </button>
 
                         <button
-                          className="p-2 hover:bg-red-500/20 rounded opacity-50 cursor-not-allowed"
-                          title="Delete disabled"
+                          onClick={() => handleDownload(doc)}
+                          className="p-2 hover:bg-cyber-blue/20 rounded"
+                          title="Download document"
                         >
-                          <Trash2
-                            size={16}
-                            className="text-gray-400 hover:text-red-400"
-                          />
+                          <Download size={16} className="text-cyber-blue" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(doc)}
+                          className="p-2 hover:bg-red-500/20 rounded"
+                          title="Delete document"
+                          disabled={deletingId === doc.id}
+                        >
+                          {deletingId === doc.id ? (
+                            <Loader2
+                              size={16}
+                              className="text-red-400 animate-spin"
+                            />
+                          ) : (
+                            <Trash2
+                              size={16}
+                              className="text-red-400"
+                            />
+                          )}
                         </button>
                       </div>
                     </td>
