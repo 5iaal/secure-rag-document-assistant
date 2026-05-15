@@ -599,9 +599,8 @@ GitHub:
 
 ---
 
-# 📜 License
+# © Copyright
 
-MIT License
+This project is proprietary and intended for educational and portfolio purposes only.
 
-```
-```
+Unauthorized copying, distribution, modification, or commercial use is prohibited without explicit permission from the author.
