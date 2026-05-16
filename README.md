@@ -902,3 +902,6 @@ Expected:
 
 ---
 
+# 📄 License
+
+MIT License
