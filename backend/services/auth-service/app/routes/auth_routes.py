@@ -3,7 +3,7 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-
+from sqlalchemy import text
 from app.core.config import settings
 from app.database.session import get_db
 from app.models.user import User
@@ -168,7 +168,7 @@ def google_login():
     google_auth_url = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         f"?client_id={settings.google_client_id}"
-        "&redirect_uri=http://localhost/api/auth/google/callback"
+        "&redirect_uri=https://localhost/api/auth/google/callback"
         "&response_type=code"
         "&scope=openid%20email%20profile"
         "&access_type=offline"
@@ -193,7 +193,7 @@ def google_callback(
             "client_secret": settings.google_client_secret,
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": "http://localhost/api/auth/google/callback",
+            "redirect_uri": "https://localhost/api/auth/google/callback",
         },
         headers={"Accept": "application/json"},
         timeout=20,
@@ -246,6 +246,69 @@ def google_callback(
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.get("/admin/users", response_model=list[UserResponse])
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    return db.query(User).order_by(User.created_at.desc()).all()    
+
+
+@router.get("/admin/stats")
+def admin_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    total_users = db.execute(
+        text("SELECT COUNT(*) FROM users")
+    ).scalar() or 0
+
+    total_documents = db.execute(
+        text("SELECT COUNT(*) FROM documents")
+    ).scalar() or 0
+
+    indexed_documents = db.execute(
+        text("SELECT COUNT(*) FROM documents WHERE status = 'indexed'")
+    ).scalar() or 0
+
+    processed_jobs = db.execute(
+        text("SELECT COUNT(*) FROM documents WHERE status IN ('processed', 'indexed')")
+    ).scalar() or 0
+
+    storage_used = db.execute(
+        text("SELECT COALESCE(SUM(file_size), 0) FROM documents")
+    ).scalar() or 0
+
+    failed_logins = db.execute(
+        text("SELECT COUNT(*) FROM audit_logs WHERE action = 'LOGIN_FAILED'")
+    ).scalar() or 0
+
+    ai_queries = db.execute(
+        text("SELECT COUNT(*) FROM audit_logs WHERE action LIKE 'RAG_QUERY%'")
+    ).scalar() or 0
+
+    audit_events = db.execute(
+        text("SELECT COUNT(*) FROM audit_logs")
+    ).scalar() or 0
+
+    failed_uploads = db.execute(
+        text("SELECT COUNT(*) FROM audit_logs WHERE action = 'DOCUMENT_UPLOAD_FAILED'")
+    ).scalar() or 0
+
+    return {
+        "total_users": total_users,
+        "total_documents": total_documents,
+        "indexed_documents": indexed_documents,
+        "processed_jobs": processed_jobs,
+        "storage_used_bytes": int(storage_used),
+        "failed_logins": failed_logins,
+        "ai_queries": ai_queries,
+        "audit_events": audit_events,
+        "failed_uploads": failed_uploads,
+    }
+    
 
 
 @router.get("/admin-only")

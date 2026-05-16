@@ -1,61 +1,80 @@
+# =========================
 # Python
+# =========================
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
 *.pyd
-.venv/
-venv/
-env/
+*.sqlite3
+*.db
 
-# Node / React
+# =========================
+# Virtual Environments
+# =========================
+venv/
+.env/
+.venv/
+
+# =========================
+# Secrets
+# =========================
+.env
+*.pem
+*.key
+*.crt
+
+# =========================
+# Node
+# =========================
 node_modules/
 dist/
 build/
-.vite/
 
-# Environment / Secrets
-.env
-.env.*
-!.env.example
-
-# Certificates / Keys
-*.key
-*.pem
-*.crt
-*.p12
-*.pfx
-backend/gateway-nginx/certs/
-
-# Uploaded / Encrypted / Runtime Files
-uploads/
-storage/
-*.enc
-downloaded-*.pdf
-
-# Local PDFs / Test Documents
-*.pdf
-*.docx
-*.xlsx
-!README.md
-
-# Docker / Volumes / Runtime Data
-docker-data/
-volumes/
-postgres-data/
-rabbitmq-data/
-chromadb-data/
-ollama-data/
-
+# =========================
 # Logs
-logs/
+# =========================
 *.log
 
-# IDE / OS
-.vscode/
-.idea/
+# =========================
+# OS
+# =========================
 .DS_Store
 Thumbs.db
 
-# Cache
-.cache/
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Uploads / Data
+# =========================
+uploads/
+encrypted_uploads/
+chroma_data/
+
+# =========================
+# Models / AI
+# =========================
+models/
+*.pt
+*.pth
+*.onnx
+
+# =========================
+# Docker
+# =========================
+*.tar
+
+# =========================
+# Testing
+# =========================
 .pytest_cache/
+.coverage
+
+# =========================
+# RabbitMQ / Postgres volumes
+# =========================
+postgres_data/
+rabbitmq_data/
