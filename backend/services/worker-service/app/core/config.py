@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     rabbitmq_password: str
 
     fernet_key: str
+    internal_api_key: str
 
     chroma_host: str = "chromadb"
     chroma_port: int = 8000

@@ -31,6 +31,7 @@ async def upload_pdf(
     user_payload: dict = Depends(get_current_user_payload),
 ):
     ip_address = request.client.host if request.client else None
+    request_id = request.headers.get("X-Request-ID")
 
     try:
         document = upload_document(db, file, user_payload)
@@ -52,7 +53,7 @@ async def upload_pdf(
             user_id=user_payload["user_id"],
             user_email=user_payload.get("email"),
             ip_address=ip_address,
-	    request_id=request.headers.get("X-Request-ID"),
+            request_id=request_id,
             details=f"Uploaded document {document.original_filename} with id {document.id}",
         )
 
@@ -66,10 +67,28 @@ async def upload_pdf(
             user_id=user_payload.get("user_id"),
             user_email=user_payload.get("email"),
             ip_address=ip_address,
-	    request_id=request.headers.get("X-Request-ID"),
-            details=str(exc.detail),
+            request_id=request_id,
+            details=f"HTTPException: {exc.detail}",
         )
+
         raise exc
+
+    except Exception as exc:
+        send_audit_event(
+            service_name="document-service",
+            action="DOCUMENT_UPLOAD_FAILED",
+            status="failed",
+            user_id=user_payload.get("user_id"),
+            user_email=user_payload.get("email"),
+            ip_address=ip_address,
+            request_id=request_id,
+            details=f"Unexpected upload failure: {str(exc)}",
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected upload failure",
+        )
 
 
 @router.get("/me", response_model=list[DocumentResponse])

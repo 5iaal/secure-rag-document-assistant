@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     chroma_host: str = "chromadb"
     chroma_port: int = 8000
     chroma_collection_name: str = "documents"
+    audit_service_url: str = "http://audit-service:8000/audit/events"
+    internal_api_key: str
 
     ollama_url: str = "http://ollama:11434"
     ollama_chat_model: str = "llama3.2:1b"

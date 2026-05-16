@@ -119,6 +119,10 @@
 * ✅ AI chat with uploaded documents
 * ✅ Source chunk references
 * ✅ Context-aware AI responses
+* ✅ Persistent chat history
+* ✅ Per-chat document context memory
+* ✅ Follow-up questions remember the selected document
+* ✅ RAG query audit logging
 
 ---
 
@@ -136,6 +140,12 @@
 * ✅ Request ID stored in audit logs
 * ✅ Admin audit log viewer
 * ✅ Admin monitoring dashboard
+* ✅ Document upload failure audit events
+* ✅ RAG query success/failure audit events
+* ✅ Worker indexing started audit events
+* ✅ Worker indexing completed audit events
+* ✅ Worker indexing failed audit events
+* ✅ Request ID displayed in frontend Audit Logs
 
 ---
 
@@ -290,6 +300,10 @@
 * User dashboard
 * Settings page
 * Session ends when tab/browser closes
+* Persistent AI chat history
+* Recent chats sidebar
+* Per-chat active document memory
+* Follow-up questions continue using the same file context
 
 ---
 
@@ -517,14 +531,17 @@ Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
 * HTTPS support
 * Rate limiting
 * Dockerized deployment
+* Failed upload audit logging
+* RAG query audit logging
+* Worker indexing audit logging
+* Persistent AI chat memory
+* Request ID displayed in Audit Logs UI
 
 ---
 
 ## 🚧 Planned Improvements
 
 * Improve RAG answer quality
-* RAG audit events
-* Worker processing audit events
 * Admin stats endpoint
 * OCR support
 * Streaming AI responses
@@ -535,6 +552,10 @@ Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
 * Redis caching
 * Kubernetes deployment
 * CI/CD pipeline
+* Page-aware RAG indexing
+* Store chat history in backend database instead of browser local storage
+* Unauthorized access audit logs
+* MITM/Wireshark documentation
 
 ---
 

@@ -17,11 +17,7 @@ export default function UploadDocument() {
     setSelectedFile(file);
     setUploadedDoc(null);
 
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      setUploadState("error");
-      setError("Only PDF files are allowed.");
-      return;
-    }
+
 
     setUploadState("uploading");
     setProgress(15);
@@ -79,7 +75,7 @@ export default function UploadDocument() {
           Select File
           <input
             type="file"
-            accept="application/pdf,.pdf"
+            accept="*"
             className="hidden"
             onChange={handleSelect}
             disabled={uploadState === "uploading"}

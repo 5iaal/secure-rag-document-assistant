@@ -51,6 +51,8 @@ def index_document_chunks(
     embeddings = []
     metadatas = []
 
+    filename_lower = filename.lower().strip()
+
     for index, chunk in enumerate(chunks):
         embedding = generate_embedding(chunk)
 
@@ -63,6 +65,7 @@ def index_document_chunks(
                 "document_id": document_id,
                 "owner_id": owner_id,
                 "filename": filename,
+                "filename_lower": filename_lower,
                 "chunk_index": index,
             }
         )

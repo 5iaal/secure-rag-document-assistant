@@ -1,6 +1,7 @@
 import hashlib
 import os
 
+import httpx
 from cryptography.fernet import Fernet
 from sqlalchemy.orm import Session
 
@@ -12,6 +13,34 @@ from app.services.vector_store import index_document_chunks
 
 def calculate_sha256(file_bytes: bytes) -> str:
     return hashlib.sha256(file_bytes).hexdigest()
+
+
+def send_audit_event(
+    action: str,
+    status: str,
+    user_id: int | None,
+    details: str,
+):
+    try:
+        httpx.post(
+            "http://audit-service:8000/audit/events",
+            json={
+                "request_id": None,
+                "user_id": user_id,
+                "user_email": None,
+                "service_name": "worker-service",
+                "action": action,
+                "status": status,
+                "ip_address": "worker-service",
+                "details": details,
+            },
+            headers={
+                "X-Internal-API-Key": settings.internal_api_key,
+            },
+            timeout=5,
+        )
+    except Exception as exc:
+        print(f"[AUDIT ERROR] {exc}", flush=True)
 
 
 def update_document_status(db: Session, document_id: int, status: str) -> None:
@@ -34,46 +63,103 @@ def process_document_job(db: Session, job: dict) -> None:
 
     print(f"[+] Processing document job: {document_id}", flush=True)
 
+    send_audit_event(
+        action="DOCUMENT_INDEX_STARTED",
+        status="success",
+        user_id=owner_id,
+        details=f"Started indexing document {original_filename} ({document_id})",
+    )
+
     update_document_status(db, document_id, "processing")
 
-    if not os.path.exists(encrypted_path):
-        print(f"[!] Encrypted file not found: {encrypted_path}", flush=True)
+    try:
+        if not os.path.exists(encrypted_path):
+            print(f"[!] Encrypted file not found: {encrypted_path}", flush=True)
+
+            update_document_status(db, document_id, "failed")
+
+            send_audit_event(
+                action="DOCUMENT_INDEX_FAILED",
+                status="failed",
+                user_id=owner_id,
+                details=f"Encrypted file not found for document {document_id}",
+            )
+
+            return
+
+        fernet = Fernet(settings.fernet_key.encode())
+
+        with open(encrypted_path, "rb") as f:
+            encrypted_bytes = f.read()
+
+        decrypted_bytes = fernet.decrypt(encrypted_bytes)
+
+        current_hash = calculate_sha256(decrypted_bytes)
+
+        if current_hash != expected_hash:
+            print(f"[!] Integrity failed for document {document_id}", flush=True)
+
+            update_document_status(db, document_id, "integrity_failed")
+
+            send_audit_event(
+                action="DOCUMENT_INDEX_FAILED",
+                status="failed",
+                user_id=owner_id,
+                details=f"Integrity verification failed for document {document_id}",
+            )
+
+            return
+
+        text = extract_text_from_pdf(decrypted_bytes)
+
+        if not text.strip():
+            print(f"[!] No extractable text found in document {document_id}", flush=True)
+
+            update_document_status(db, document_id, "no_text")
+
+            send_audit_event(
+                action="DOCUMENT_INDEX_FAILED",
+                status="failed",
+                user_id=owner_id,
+                details=f"No extractable text found in document {document_id}",
+            )
+
+            return
+
+        chunks = chunk_text(text)
+
+        chunks_count = index_document_chunks(
+            document_id=document_id,
+            owner_id=owner_id,
+            filename=original_filename,
+            chunks=chunks,
+        )
+
+        update_document_status(db, document_id, "indexed")
+
+        send_audit_event(
+            action="DOCUMENT_INDEXED",
+            status="success",
+            user_id=owner_id,
+            details=(
+                f"Indexed document {original_filename} "
+                f"({document_id}) successfully with {chunks_count} chunks"
+            ),
+        )
+
+        print(
+            f"[✓] Document indexed successfully: {document_id}, chunks={chunks_count}",
+            flush=True,
+        )
+
+    except Exception as exc:
         update_document_status(db, document_id, "failed")
-        return
 
-    fernet = Fernet(settings.fernet_key.encode())
+        send_audit_event(
+            action="DOCUMENT_INDEX_FAILED",
+            status="failed",
+            user_id=owner_id,
+            details=f"Unexpected indexing failure: {str(exc)}",
+        )
 
-    with open(encrypted_path, "rb") as f:
-        encrypted_bytes = f.read()
-
-    decrypted_bytes = fernet.decrypt(encrypted_bytes)
-
-    current_hash = calculate_sha256(decrypted_bytes)
-
-    if current_hash != expected_hash:
-        print(f"[!] Integrity failed for document {document_id}", flush=True)
-        update_document_status(db, document_id, "integrity_failed")
-        return
-
-    text = extract_text_from_pdf(decrypted_bytes)
-
-    if not text.strip():
-        print(f"[!] No extractable text found in document {document_id}", flush=True)
-        update_document_status(db, document_id, "no_text")
-        return
-
-    chunks = chunk_text(text)
-
-    chunks_count = index_document_chunks(
-        document_id=document_id,
-        owner_id=owner_id,
-        filename=original_filename,
-        chunks=chunks,
-    )
-
-    update_document_status(db, document_id, "indexed")
-
-    print(
-        f"[✓] Document indexed successfully: {document_id}, chunks={chunks_count}",
-        flush=True,
-    )
+        print(f"[!] Worker exception: {exc}", flush=True)

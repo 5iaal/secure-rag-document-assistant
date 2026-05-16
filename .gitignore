@@ -1,6 +1,8 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 .venv/
 venv/
 env/
@@ -9,32 +11,40 @@ env/
 node_modules/
 dist/
 build/
+.vite/
 
 # Environment / Secrets
 .env
 .env.*
 !.env.example
 
-# Uploaded / Encrypted files
-uploads/
-storage/
-*.enc
-*.pdf
-*.docx
-
-# Docker volumes / runtime data
-docker-data/
-volumes/
-ollama-data/
-chromadb-data/
-postgres-data/
-rabbitmq-data/
-
-# Certificates / keys
+# Certificates / Keys
 *.key
 *.pem
 *.crt
+*.p12
+*.pfx
 backend/gateway-nginx/certs/
+
+# Uploaded / Encrypted / Runtime Files
+uploads/
+storage/
+*.enc
+downloaded-*.pdf
+
+# Local PDFs / Test Documents
+*.pdf
+*.docx
+*.xlsx
+!README.md
+
+# Docker / Volumes / Runtime Data
+docker-data/
+volumes/
+postgres-data/
+rabbitmq-data/
+chromadb-data/
+ollama-data/
 
 # Logs
 logs/
@@ -46,5 +56,6 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Generated downloads
-downloaded-*.pdf
+# Cache
+.cache/
+.pytest_cache/
