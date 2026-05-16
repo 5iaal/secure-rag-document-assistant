@@ -2,6 +2,8 @@
 
 > AI-powered secure distributed document processing and RAG platform built with **FastAPI, React, RabbitMQ, PostgreSQL, Docker, Nginx, Ollama, and ChromaDB**.
 
+This project is not just a chatbot. It is a secure distributed system that combines **Authentication, OAuth, RBAC, Encrypted Document Storage, RabbitMQ Async Processing, RAG, Audit Logging, Request Tracing, HTTPS, and Admin Monitoring**.
+
 ---
 
 # 🚀 System Architecture
@@ -17,6 +19,7 @@
                 │   Nginx Gateway    │
                 │ Rate Limiting +    │
                 │ HTTPS + Routing    │
+                │ Request Tracing    │
                 └─────────┬──────────┘
                           │
       ┌───────────────────┼───────────────────┐
@@ -46,7 +49,7 @@
              │ Audit Service │
              │ Logs + Trace  │
              └───────────────┘
-````
+```
 
 ---
 
@@ -68,9 +71,12 @@
 * ✅ Automatic admin seeding
 * ✅ Secure session handling using `sessionStorage`
 * ✅ Logout clears session immediately
+* ✅ Invalid token auditing
+* ✅ Forbidden admin access auditing
 * ✅ Nginx rate limiting
 * ✅ API Gateway security headers
 * ✅ HTTPS support using self-signed local certificate
+* ✅ HTTP → HTTPS redirect
 
 ---
 
@@ -90,6 +96,10 @@
 * ✅ Document delete flow
 * ✅ Document metadata stored in PostgreSQL
 * ✅ Async document processing using RabbitMQ
+* ✅ Upload success audit logging
+* ✅ Upload failure audit logging
+* ✅ Download audit logging
+* ✅ Delete audit logging
 
 ---
 
@@ -104,6 +114,10 @@
 * ✅ API Gateway routing
 * ✅ Queue-based processing
 * ✅ PostgreSQL persistence
+* ✅ Worker indexing lifecycle audit logs
+* ✅ Worker indexing started logs
+* ✅ Worker indexing completed logs
+* ✅ Worker indexing failed logs
 
 ---
 
@@ -117,12 +131,13 @@
 * ✅ Vector indexing
 * ✅ Semantic retrieval
 * ✅ AI chat with uploaded documents
-* ✅ Source chunk references
 * ✅ Context-aware AI responses
 * ✅ Persistent chat history
+* ✅ Recent chats sidebar
 * ✅ Per-chat document context memory
 * ✅ Follow-up questions remember the selected document
-* ✅ RAG query audit logging
+* ✅ Multi-chat conversation handling
+* ✅ RAG query success/failure audit logging
 
 ---
 
@@ -132,20 +147,24 @@
 * ✅ Login success/failure tracking
 * ✅ OAuth login audit events
 * ✅ Document upload audit events
+* ✅ Document upload failure audit events
 * ✅ Document integrity audit events
 * ✅ Document download audit events
 * ✅ Document delete audit events
-* ✅ Distributed `X-Request-ID` tracing
-* ✅ Request ID propagated from Nginx to services
-* ✅ Request ID stored in audit logs
-* ✅ Admin audit log viewer
-* ✅ Admin monitoring dashboard
-* ✅ Document upload failure audit events
 * ✅ RAG query success/failure audit events
 * ✅ Worker indexing started audit events
 * ✅ Worker indexing completed audit events
 * ✅ Worker indexing failed audit events
+* ✅ Unauthorized token audit events
+* ✅ Forbidden admin access audit events
+* ✅ Distributed `X-Request-ID` tracing
+* ✅ Request ID propagated from Nginx to services
+* ✅ Request ID stored in audit logs
 * ✅ Request ID displayed in frontend Audit Logs
+* ✅ Admin audit log viewer
+* ✅ Admin monitoring dashboard
+* ✅ Registered users list for admin
+* ✅ Backend-driven admin stats endpoint
 
 ---
 
@@ -193,6 +212,32 @@
 
 ---
 
+# 🧠 AI Chat Memory Flow
+
+```text
+User starts a new chat
+        │
+        ▼
+User asks about a document, e.g. Sensor.pdf
+        │
+        ▼
+Frontend stores active document context for that chat
+        │
+        ▼
+User asks follow-up question without repeating filename
+        │
+        ▼
+Frontend automatically sends context-aware question
+        │
+        ▼
+RAG Service retrieves chunks from the selected document
+        │
+        ▼
+AI answers using the correct document context
+```
+
+---
+
 # 🛠️ Tech Stack
 
 ## ⚙️ Backend
@@ -220,6 +265,7 @@
 * React Router
 * Lucide Icons
 * Session Storage Auth
+* Local Storage Chat History
 
 ---
 
@@ -246,19 +292,19 @@
 
 # 🧩 Services
 
-| Service             | Purpose                                     |
-| ------------------- | ------------------------------------------- |
-| 🔑 auth-service     | Authentication, JWT, OAuth, RBAC            |
-| 📄 document-service | Secure upload, encryption, download, delete |
-| ⚙️ worker-service   | Async PDF processing and vector indexing    |
-| 🧠 rag-service      | RAG retrieval and AI answer generation      |
-| 📋 audit-service    | Centralized audit logs and request tracing  |
-| 🌐 nginx-gateway    | API gateway, HTTPS, rate limiting           |
-| 🐘 postgres         | Relational database                         |
-| 🐇 rabbitmq         | Message queue                               |
-| 🧠 chromadb         | Vector database                             |
-| 🤖 ollama           | Local AI embeddings and generation          |
-| 🎨 frontend         | React frontend                              |
+| Service             | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| 🔑 auth-service     | Authentication, JWT, OAuth, RBAC, admin APIs |
+| 📄 document-service | Secure upload, encryption, download, delete  |
+| ⚙️ worker-service   | Async PDF processing and vector indexing     |
+| 🧠 rag-service      | RAG retrieval and AI answer generation       |
+| 📋 audit-service    | Centralized audit logs and request tracing   |
+| 🌐 nginx-gateway    | API gateway, HTTPS, redirect, rate limiting  |
+| 🐘 postgres         | Relational database                          |
+| 🐇 rabbitmq         | Message queue                                |
+| 🧠 chromadb         | Vector database                              |
+| 🤖 ollama           | Local AI embeddings and generation           |
+| 🎨 frontend         | React frontend                               |
 
 ---
 
@@ -281,6 +327,10 @@
 * ⚡ Queue isolation
 * 🧯 Security headers
 * 🔐 HTTPS support
+* 🔁 HTTP → HTTPS redirect
+* 🔑 Internal API key between services
+* 🚫 Invalid token logging
+* 🚫 Unauthorized access logging
 
 ---
 
@@ -299,7 +349,7 @@
 * AI chat with indexed documents
 * User dashboard
 * Settings page
-* Session ends when tab/browser closes
+* Session ends when browser/session closes
 * Persistent AI chat history
 * Recent chats sidebar
 * Per-chat active document memory
@@ -312,10 +362,16 @@
 * Admin dashboard
 * Audit log viewer
 * Failed login tracking
+* Failed upload tracking
 * Security monitoring
 * Service analytics
 * System activity overview
 * Request ID visibility in logs
+* Registered users list
+* Backend-driven stats
+* Worker indexing monitoring
+* RAG query monitoring
+* Unauthorized access monitoring
 
 ---
 
@@ -333,6 +389,7 @@ secure-rag-document-assistant/
 │
 ├── backend/
 │   ├── docker-compose.yml
+│   ├── .env.example
 │   ├── gateway-nginx/
 │   │   ├── nginx.conf
 │   │   └── certs/
@@ -344,6 +401,7 @@ secure-rag-document-assistant/
 │       ├── rag-service/
 │       └── audit-service/
 │
+├── screenshots/
 ├── .gitignore
 └── README.md
 ```
@@ -357,6 +415,58 @@ secure-rag-document-assistant/
 ```bash
 git clone https://github.com/5iaal/secure-rag-document-assistant.git
 cd secure-rag-document-assistant
+```
+
+---
+
+## 🔐 Create Environment File
+
+Copy the example file:
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+On Windows PowerShell:
+
+```powershell
+cd backend
+copy .env.example .env
+```
+
+Then edit:
+
+```text
+backend/.env
+```
+
+You must configure:
+
+```env
+POSTGRES_DB=secure_rag_db
+POSTGRES_USER=secure_user
+POSTGRES_PASSWORD=your_password
+
+JWT_SECRET=your_jwt_secret
+FERNET_KEY=your_generated_fernet_key
+INTERNAL_API_KEY=your_internal_api_key
+
+RABBITMQ_DEFAULT_USER=secure_rabbit_user
+RABBITMQ_DEFAULT_PASS=your_rabbit_password
+
+FRONTEND_URL=https://localhost
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+```
+
+Generate a Fernet key:
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
 ---
@@ -376,6 +486,22 @@ docker compose up -d --build
 docker compose ps
 ```
 
+Expected services:
+
+```text
+auth-service
+document-service
+rag-service
+audit-service
+worker-service
+frontend
+nginx-gateway
+postgres
+rabbitmq
+chromadb
+ollama
+```
+
 ---
 
 ## 🧠 Pull Ollama Embedding Model
@@ -384,14 +510,28 @@ docker compose ps
 docker exec -it ollama ollama pull nomic-embed-text
 ```
 
----
-
-## 🎨 Start Frontend
+If your chat model is not pulled yet, pull it too:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker exec -it ollama ollama pull llama3.2
+```
+
+---
+
+## 🌐 Open the Application
+
+The system runs through Nginx over HTTPS:
+
+```text
+https://localhost
+```
+
+Because the certificate is self-signed, the browser may show a warning.
+
+Choose:
+
+```text
+Advanced → Proceed to localhost
 ```
 
 ---
@@ -407,22 +547,102 @@ Password: Admin12345
 
 # 🔐 OAuth Setup
 
-## GitHub OAuth Callback
+## Google OAuth
+
+In Google Cloud Console:
+
+### Authorized JavaScript origins
 
 ```text
-http://localhost/api/auth/github/callback
+https://localhost
 ```
 
-## Google OAuth Callback
+### Authorized redirect URIs
 
 ```text
-http://localhost/api/auth/google/callback
+https://localhost/api/auth/google/callback
 ```
 
-Add your credentials in:
+---
+
+## GitHub OAuth
+
+In GitHub Developer Settings:
+
+### Homepage URL
 
 ```text
-backend/.env
+https://localhost
+```
+
+### Authorization callback URL
+
+```text
+https://localhost/api/auth/github/callback
+```
+
+---
+
+## Backend `.env`
+
+```env
+FRONTEND_URL=https://localhost
+
+GOOGLE_REDIRECT_URI=https://localhost/api/auth/google/callback
+GITHUB_REDIRECT_URI=https://localhost/api/auth/github/callback
+```
+
+After changing OAuth settings:
+
+```bash
+cd backend
+docker compose build --no-cache auth-service frontend
+docker compose up -d auth-service frontend nginx-gateway
+```
+
+---
+
+# 🚀 How I Run It Locally
+
+From project root:
+
+```powershell
+cd C:\Users\MSI\secure-rag-document-assistant\backend
+docker compose up -d --build
+```
+
+Then:
+
+```powershell
+docker compose ps
+```
+
+Open:
+
+```text
+https://localhost
+```
+
+If frontend or backend changes were made:
+
+```powershell
+docker compose build --no-cache auth-service document-service rag-service worker-service frontend
+docker compose up -d auth-service document-service rag-service worker-service frontend nginx-gateway
+```
+
+For only frontend rebuild:
+
+```powershell
+docker compose build --no-cache frontend
+docker compose up -d frontend
+docker compose restart nginx-gateway
+```
+
+For only auth-service rebuild:
+
+```powershell
+docker compose build --no-cache auth-service
+docker compose up -d auth-service nginx-gateway
 ```
 
 ---
@@ -432,10 +652,9 @@ backend/.env
 ## 🔐 Login
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
-  -Method POST `
-  -ContentType "application/json" `
-  -Body '{"email":"admin@secure-rag.com","password":"Admin12345"}'
+curl.exe -k -X POST "https://localhost/api/auth/login" `
+  -H "Content-Type: application/json" `
+  -d "{\"email\":\"admin@secure-rag.com\",\"password\":\"Admin12345\"}"
 ```
 
 ---
@@ -443,7 +662,7 @@ Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
 ## 📄 Upload Document
 
 ```powershell
-curl.exe -X POST "http://localhost/api/documents/upload" `
+curl.exe -k -X POST "https://localhost/api/documents/upload" `
   -H "Authorization: Bearer TOKEN" `
   -F "file=@test.pdf;type=application/pdf"
 ```
@@ -453,9 +672,8 @@ curl.exe -X POST "http://localhost/api/documents/upload" `
 ## ✅ Verify Integrity
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost/api/documents/1/verify" `
-  -Method GET `
-  -Headers @{Authorization="Bearer TOKEN"}
+curl.exe -k "https://localhost/api/documents/1/verify" `
+  -H "Authorization: Bearer TOKEN"
 ```
 
 ---
@@ -463,7 +681,7 @@ Invoke-RestMethod -Uri "http://localhost/api/documents/1/verify" `
 ## 📥 Download Document
 
 ```powershell
-curl.exe -L "http://localhost/api/documents/1/download" `
+curl.exe -k -L "https://localhost/api/documents/1/download" `
   -H "Authorization: Bearer TOKEN" `
   -o "downloaded-file.pdf"
 ```
@@ -473,9 +691,8 @@ curl.exe -L "http://localhost/api/documents/1/download" `
 ## 🗑️ Delete Document
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost/api/documents/1" `
-  -Method DELETE `
-  -Headers @{Authorization="Bearer TOKEN"}
+curl.exe -k -X DELETE "https://localhost/api/documents/1" `
+  -H "Authorization: Bearer TOKEN"
 ```
 
 ---
@@ -483,11 +700,18 @@ Invoke-RestMethod -Uri "http://localhost/api/documents/1" `
 ## 🤖 Ask AI
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost/api/rag/ask" `
-  -Method POST `
-  -Headers @{Authorization="Bearer TOKEN"} `
-  -ContentType "application/json" `
-  -Body '{"question":"What is this document about?","top_k":4}'
+curl.exe -k -X POST "https://localhost/api/rag/ask" `
+  -H "Authorization: Bearer TOKEN" `
+  -H "Content-Type: application/json" `
+  -d "{\"question\":\"What is this document about?\",\"top_k\":5}"
+```
+
+---
+
+## 🧾 Get Audit Logs
+
+```powershell
+curl.exe -k "https://localhost/api/audit/events"
 ```
 
 ---
@@ -495,11 +719,80 @@ Invoke-RestMethod -Uri "http://localhost/api/rag/ask" `
 ## 🔍 Test Request ID Tracing
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
-  -Method POST `
-  -Headers @{"X-Request-ID"="test-auth-request-123"} `
-  -ContentType "application/json" `
-  -Body '{"email":"admin@secure-rag.com","password":"Admin12345"}'
+curl.exe -k -X POST "https://localhost/api/auth/login" `
+  -H "Content-Type: application/json" `
+  -H "X-Request-ID: test-auth-request-123" `
+  -d "{\"email\":\"admin@secure-rag.com\",\"password\":\"Admin12345\"}"
+```
+
+Then check Audit Logs and confirm that the same `request_id` is stored.
+
+---
+
+# 🧪 Security Test Examples
+
+## Invalid Token Test
+
+```powershell
+curl.exe -k "https://localhost/api/documents/me" `
+  -H "Authorization: Bearer fake-invalid-token"
+```
+
+Expected result:
+
+```text
+Invalid or expired token
+```
+
+Audit Logs should show:
+
+```text
+AUTH_UNAUTHORIZED
+```
+
+---
+
+## Failed Upload Test
+
+```powershell
+echo "bad file test" > bad.txt
+
+curl.exe -k -X POST "https://localhost/api/documents/upload" `
+  -H "Authorization: Bearer TOKEN" `
+  -F "file=@bad.txt;type=text/plain"
+```
+
+Audit Logs should show:
+
+```text
+DOCUMENT_UPLOAD_FAILED
+```
+
+---
+
+## HTTP to HTTPS Redirect Test
+
+```powershell
+curl.exe -I http://localhost/api/auth/health
+```
+
+Expected:
+
+```text
+HTTP/1.1 301 Moved Permanently
+Location: https://localhost/api/auth/health
+```
+
+HTTPS test:
+
+```powershell
+curl.exe -k https://localhost/api/auth/health
+```
+
+Expected:
+
+```json
+{"service":"auth-service","status":"healthy"}
 ```
 
 ---
@@ -526,36 +819,37 @@ Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
 * Audit logging service
 * Request ID tracing
 * Admin dashboard
+* Admin users list
+* Backend-driven admin stats
 * Document integrity verification
 * Protected frontend routes
 * HTTPS support
+* HTTP → HTTPS redirect
 * Rate limiting
 * Dockerized deployment
 * Failed upload audit logging
 * RAG query audit logging
 * Worker indexing audit logging
+* Unauthorized access audit logging
 * Persistent AI chat memory
+* Recent chats system
 * Request ID displayed in Audit Logs UI
 
 ---
 
 ## 🚧 Planned Improvements
 
-* Improve RAG answer quality
-* Admin stats endpoint
+* Page-aware RAG indexing
+* Store chat history in backend database instead of browser local storage
 * OCR support
 * Streaming AI responses
 * Toast notifications
 * Better upload progress
-* Better frontend chat UX
 * Dead-letter queue / retry policies
 * Redis caching
+* MITM/Wireshark documentation
 * Kubernetes deployment
 * CI/CD pipeline
-* Page-aware RAG indexing
-* Store chat history in backend database instead of browser local storage
-* Unauthorized access audit logs
-* MITM/Wireshark documentation
 
 ---
 
@@ -603,25 +897,8 @@ Invoke-RestMethod -Uri "http://localhost/api/auth/login" `
 * 🔥 Local AI Processing
 * 🔥 Enterprise-style Security Monitoring
 * 🔥 Request Tracing and Auditability
+* 🔥 HTTPS Gateway with Redirect
+* 🔥 Persistent AI Chat Memory
 
 ---
 
-# 👨‍💻 Author
-
-## Ahmad Elkhial
-
-* Cybersecurity & AI Developer
-* Distributed Systems Enthusiast
-* Backend & AI Engineer
-
-GitHub:
-
-[https://github.com/5iaal](https://github.com/5iaal)
-
----
-
-# © Copyright
-
-This project is proprietary and intended for educational and portfolio purposes only.
-
-Unauthorized copying, distribution, modification, or commercial use is prohibited without explicit permission from the author.
